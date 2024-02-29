@@ -11,7 +11,7 @@ class Graph(set):
             edge = tuple(sorted((id, id2)))
             self.add(edge)
     
-    def remove_edge(self, id, *ids, directed=False):
+    def remove_edge(self, id1, *ids, directed=False):
         for id2 in ids:
             self.discard((id1, id2))
             self.discard((id2, id1))
@@ -44,14 +44,17 @@ class SpatialGraph(Graph):
         self.add_edge(id, *ids)
         return id
     
-    def render2D(self, ax, show=None):
+    def get_index(self, label):
+        return self.vertices.index(label)
+    
+    def render2D(self, ax = None, show=None):
         if ax is None:
             fig, ax = plt.subplots()
             if show is None:
                 show = True
         ax.scatter(*zip(self.vertices))
         xs, ys = [], []
-        for edge in self.edges:
+        for edge in self:
             pair = map(self.vertices.__getitem__, edge)
             ax.plot(*zip(*pair))
         show and plt.show()
