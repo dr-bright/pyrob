@@ -20,7 +20,6 @@ class Graph(set):
         self.edges.discard((id1, id2))
         if self.directed:
             self.edges.discard((id2, id1))
-        if ids
     
     def remove_vertex(self, id):
         remove = set(filter(lambda x: id in x, self.edges))
