@@ -75,4 +75,6 @@ class WeightedGraph(Graph):
             idx = tuple(sorted((id1, id2)))
         return self.weights.get(idx)
     
-    
+
+class SpatialWeightedGraph(WeightedGraph, SpatialGraph):
+    pass
