@@ -89,25 +89,11 @@ def stupid_slam(odom, lidar, a0=0):
     pts_cart[1] += odom[1]
     return pts_cart
 
-
-def obs_map(pts, cell_size=None, recurse=False):
-    """
-    
-    Args:
-        pts: array[point_size, point_count]
-    Returns:
-        cell_size: float
-        obs_map: array[*point_size]
-    """
-    if cell_size is None:
-        pass
-
-
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     odom, lidar = read_txt('..\data\examp2.txt')
     a0 = 0
-    ptc = stupid(odom, lidar, a0)
+    ptc = stupid_slam(odom, lidar, a0)
     mp = ptc.reshape(2, -1)
     plt.scatter(*mp, 1, 'r')
     # plt.savefig('test.png')
