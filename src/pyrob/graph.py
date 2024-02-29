@@ -45,4 +45,11 @@ class SpatialGraph(Graph):
             pair = map(self.vertices.__getitem__, edge)
             ax.plot(*zip(*pair))
         return ax
+
+class WeightedGraph(Graph):
+    def edge_weight(self, id1, id2):
+        pass
+    
+    def vertex_weight(self, id):
+        pass
     
