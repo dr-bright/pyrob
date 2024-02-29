@@ -27,6 +27,7 @@ class Graph(set):
         self.edges -= remove
         return remove
 
+
 class SpatialGraph(Graph):
     def add_vertex(self, label, *ids):
         if not hasattr(self, 'vertices'):
