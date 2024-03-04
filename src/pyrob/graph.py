@@ -52,12 +52,13 @@ class SpatialGraph(Graph):
             fig, ax = plt.subplots()
             if show is None:
                 show = True
-        ax.scatter(*zip(self.vertices))
+        ax.scatter(*zip(*self.vertices))
         xs, ys = [], []
         for edge in self:
             pair = map(self.vertices.__getitem__, edge)
             ax.plot(*zip(*pair))
         show and plt.show()
+        return ax
 
 
 class WeightedGraph(Graph):
@@ -79,5 +80,6 @@ class WeightedGraph(Graph):
         return self.weights.get(idx)
     
 
-class SpatialWeightedGraph(WeightedGraph, SpatialGraph):
+class PathGraph(WeightedGraph, SpatialGraph):
+    # def add_vertex(): supports adding vertex anywhere
     pass

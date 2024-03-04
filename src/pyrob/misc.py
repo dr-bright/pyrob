@@ -2,18 +2,13 @@
 
 import itertools
 import os, sys, csv
-
-try:
-    import pandas as pd
-    pandas_flag = True
-except ImportError:
-    pandas_flag = False
+import matplotlib.pyplot as plt
 
 
-class text(str):
-    """Indicates literal text at places where filepath is extected."""
-    pass
 
+def imshow(img, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
 
 
 def read_file(source, *, encode=None, decode=None, literal=None, seek0=True):
@@ -90,102 +85,6 @@ def write_file(data, dest, *, charset='utf-8', seek0=False):
     finally:
         if close:
             dest.close()
-
-
-def write_csv(data, *, file=None, sep=',', header=None, columns=None,
-                       encoding='utf-8', seek0=False, **kwargs):
-    """...
-    
-    data: str|dict|list[list]|list[dict]   - dict is single record
-    columns: None | list[str] | list[int]  - these are actually displayed
-    header: bool | list[str] | None        - header is aliases for all `columns`
-    """
-    if file is None:
-        file = sys.stdout
-    close = False
-    if isinstance(file, str):
-        close = True
-    seek0 = seek0 and not close and file.seekable()
-    if seek0:
-        ipos = file.tell()
-    if pandas_flag and isinstance(data, pd.DataFrame): # DataFrame
-        try:
-            if header is None:
-                header = True
-            data.to_csv(file, sep=sep, encoding=encoding,
-                              header=header, index=False,
-                **kwargs)
-        finally:
-            if seek0:
-                file.seek(ipos)
-        return
-    if close:
-        file = open(file, 'wt', encoding=encoding)
-    writerow = csv.writer(file, delimiter=sep).writerow
-    try:
-        if hasattr(data, 'keys') and hasattr(data, '__getitem__'): # dict
-            if header is None:
-                header = True
-            if columns is None:
-                columns = [*data.keys()]
-            if header is True:
-                writerow(columns)
-            elif header:
-                writerow(header + columns[len(header):])
-            writerow(data[k] for k in columns)
-            return
-        data = iter(data)
-        try:
-            row0 = next(data)
-        except StopIteration:
-            return
-        if hasattr(row0, 'keys') and hasattr(row0, '__getitem__'): # list[dict]
-            if header is None:
-                header = True
-            if columns is None:
-                columns = [*row0.keys()]
-            if header is True:
-                writerow(columns)
-            elif header:
-                writerow(header + columns[len(header):])
-            for record in itertools.chain([row0], data):
-                values = (record[k] for k in columns)
-                writerow(values)
-        else:                                                       # list[list]
-            if header is None:
-                header = False
-            if header is True:
-                if columns is not None:
-                    header = columns
-                else:
-                    row0 = list(row0)
-                    header = range(len(row0))
-            if header:
-                writerow(header)
-            for record in itertools.chain([row0], data):
-                values = (val for i, val in enumerate(record)
-                              if not columns or i in columns
-                         )
-                writerow(values)
-    finally:
-        if seek0:
-            file.seek(ipos)
-        if close:
-            file.close()
-    return
-
-
-def safe_wx(filepath, suffix=" ({0})", encoding=None):
-    """Open file with open(path, 'x'), retry with suffix if failed."""
-    mode = 'xb' if encoding else 'xt'
-    i = 2
-    base, ext = os.path.splitext(filepath)
-    while True:
-        try:
-            return open(filepath, mode, encoding=encoding)
-        except FileExistsError:
-            filepath = base + suffix.format(i) + ext
-            i += 1
 
 
 def expand_glob(*files):

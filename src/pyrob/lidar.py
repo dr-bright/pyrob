@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 import re  # regular expressions
-from .misc import read_file
+from misc import read_file
 
 
 # lidar data is np.array([[a, r], ...])
@@ -44,36 +44,36 @@ def read_txt(txt, literal=False, degrange=240):
     return odom, lidar
 
 
-def cart(pts_polar):
+def cart(ptc_polar):
     """
     
     Args:
-        pts_polar: array[2, points, records]
+        ptc_polar: array[2, points, records]
     Returns:
-        pts_cart: array[2, points, records]
+        ptc_cart: array[2, points, records]
     """
-    a, d = pts_polar
+    a, d = ptc_polar
     x, y = d * np.cos(a), d * np.sin(a)
-    pts_cart = np.stack([x, y], axis=0)
-    return pts_cart
+    ptc_cart = np.stack([x, y], axis=0)
+    return ptc_cart
 
 
-def polar(pts_cart):
+def polar(ptc_cart):
     """
     
     Args:
-        pts_polar: array[2, points, records]
+        ptc_polar: array[2, points, records]
     Returns:
-        pts_cart: array[2, points, records]
+        ptc_cart: array[2, points, records]
     """
-    x, y = pts_cart
+    x, y = ptc_cart
     r = np.sqrt(x * x + y * y)
     a = np.arctan2(y, x)
-    pts_polar = np.stack([a, r], axis=0)
-    return pts_polar
+    ptc_polar = np.stack([a, r], axis=0)
+    return ptc_polar
 
 
-def stupid_slam(odom, lidar, a0=0):
+def stupid_slam(odom, lidar, init_angle=0, lidar_disp=0.3):
     """
     
     Args:
@@ -82,18 +82,19 @@ def stupid_slam(odom, lidar, a0=0):
     Returns:
         carts: array[2, points, records]
     """
-    pts_polar = lidar.copy()
-    pts_polar[0] += odom[2] + a0
-    pts_cart = cart(pts_polar)
-    pts_cart[0] += odom[0]
-    pts_cart[1] += odom[1]
-    return pts_cart
+    ptc_polar = lidar.copy()
+    ptc_polar[0] += odom[2] + init_angle
+    ptc_cart = cart(ptc_polar)
+    ptc_cart[0] += odom[0] + lidar_disp * np.cos(odom[2])
+    ptc_cart[1] += odom[1] + lidar_disp * np.sin(odom[2])
+    return ptc_cart[:, (~np.isnan(ptc_cart)).any(axis=0)]
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     odom, lidar = read_txt('..\data\examp2.txt')
     a0 = 0
-    ptc = stupid_slam(odom, lidar, a0)
+    ptc = stupid_slam(odom, lidar, a0, disp=(0,0.3))
     mp = ptc.reshape(2, -1)
     plt.scatter(*mp, 1, 'r')
     # plt.savefig('test.png')
