@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import cv2 as cv
 
 
 def convolve(a, b):
@@ -23,6 +24,10 @@ def imfilter(image, filter_kernel, recenter=True):
         out = np.roll(out, -(shape // 2), axis=[*range(len(shape))])
     return out
 
-
+def rotate_image(image, radians):
+    image_center = tuple(np.array(image.shape[1::-1]) / 2)
+    mtx = cv.getRotationMatrix2D(image_center, radians / np.pi * 180, 1.0)
+    rsp = cv.warpAffine(image, mtx, image.shape[1::-1], flags=cv.INTER_LINEAR)
+    return rsp
 
 # cv.medianBlur

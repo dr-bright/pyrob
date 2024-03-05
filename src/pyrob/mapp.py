@@ -1,4 +1,4 @@
-from mathops import *
+from mathops import rotate_image
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 def detect_dpu(ptc):
     pass
+
 
 def render_ptc(ptc, dpu, point_size=2, margin=50, thresh=150, ksize=5, msize=7):
     """
@@ -57,15 +58,50 @@ def obstacles(marked, mass_thresh=None, convex=None):
 
 def minkowski(map, shape):
     kernel = np.ones(shape)
-    return cv.filter2D(map, cv.CV_32F, kernel) > 0
+    return cv.filter2D(map, cv.CV_32F, kernel) > 0.2
 
+
+def extend_angle(map, robot_shape, layers=8):
+    """
+    
+    Args:
+        map: array[height, width]
+        robot_shape: (width: int, height: int)  -- in pixels
+        step_deg: int                           -- rotation step in degrees
+    Returns:
+        emap: array[angle, height, width]
+    """
+    robot_shape = np.array(robot_shape[::-1])
+    tail = (map.shape - robot_shape) % 2
+    margin = (map.shape - robot_shape) // 2
+    robot = np.ones(robot_shape)
+    robot = np.pad(robot, ((margin[0], margin[0] + tail[0])
+                            , (margin[1], margin[1] + tail[1])
+                          ))
+    emap = []
+    print(map.shape, robot.shape)
+    for angle in np.arange(0, np.pi, np.pi / layers):
+        rob = rotate_image(robot, angle)
+        layer = cv.filter2D(map, cv.CV_32F, rob) > 0.3
+        emap.append(layer)
+    return np.stack(emap, axis=0)
 
 if __name__ == '__main__':
     from lidar import *
     
     odom, lidar = read_txt('../../data/examp5.txt')
+    dpu = 100
+    robot_size = (0.38, 0.58)
+    robot_shape = (np.array(robot_size) * dpu).round().astype(int)
+    
     ptc = stupid_slam(odom, lidar)
-    image = render_ptc(ptc, 100, ksize=5, msize=7)
-    plt.imshow(image)
-    plt.show()
+    map = render_ptc(ptc, dpu, ksize=5, msize=7)
+    emap = extend_angle(map, robot_shape)
+    
+    
+    plt.imshow(map); plt.show()
+    for layer in emap:
+        plt.imshow(layer); plt.show()
+    pass
+    
     
