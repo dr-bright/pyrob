@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 import re  # regular expressions
-from misc import read_file
+from .misc import read_file
 
 
 # lidar data is np.array([[a, r], ...])
