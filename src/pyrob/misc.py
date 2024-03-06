@@ -6,11 +6,6 @@ import matplotlib.pyplot as plt
 
 
 
-def imshow(img, ax=None):
-    if ax is None:
-        fig, ax = plt.subplots()
-
-
 def read_file(source, *, encode=None, decode=None, literal=None, seek0=True):
     """Read and decode data from *any* source.
     
@@ -95,3 +90,6 @@ def expand_glob(*files):
     return files
 # end
 
+
+def bounds(x, low, high):
+    return max(low, min(high, x))

@@ -2,7 +2,6 @@ import cv2 as cv
 import numpy as np
 import itertools
 from .graph import PathGraph
-from .misc import bounds
 
 
 def sparse_map(map_, stride):
