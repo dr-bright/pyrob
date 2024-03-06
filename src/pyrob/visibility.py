@@ -1,9 +1,10 @@
-from misc import *
-from mapp import *
-from graph import *
-from lidar import *
-from plotters import *
+from .misc import *
+from .mapp import *
+from .graph import *
+from .lidar import *
+from .plotters import *
 
+import pathlib
 import cv2
 import numpy as np
 
@@ -86,7 +87,7 @@ def graph_visib(map_, show=False):
             vertices = [tuple(vertex[0]) for vertex in approx]
             obstacles_vertices.append(vertices)
 
-            # Рисуем красные точки для каждой вершины
+            # Рисуем точки для каждой вершины
             for vertex in vertices:
                 cv2.circle(map_, vertex, 5, (0, 0, 255), -1)
                 
@@ -126,8 +127,10 @@ def visualize(obstacles, visib, map_, start):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+path = pathlib.Path('..','..','data', 'examp2.txt')
+
 start = [(470,450), (730,600)]
-odom, lidar = read_txt('..\..\data\examp7.txt')
+odom, lidar = read_txt(str(path))
 pts = stupid_slam(odom, lidar)
 map_ = render_ptc(pts, 100, ksize= 9, msize = 9)
 obstacless = graph_visib(map_, show=True)

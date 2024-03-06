@@ -3,6 +3,7 @@ import numpy as np
 import itertools
 #from graph import PathGraph
 import networkx as nx
+import pathlib
 
 
 # def sparse_map(map_, stride):
@@ -164,7 +165,9 @@ if __name__ == '__main__':
     from lidar import read_txt, stupid_slam
     from mapp import render_ptc, extend_angle
     
-    odom, lidar = read_txt('..\..\data\examp2.txt')
+    path = pathlib.Path('..','..','data', 'examp2.txt')
+
+    odom, lidar = read_txt(str(path))
     dpu = 100
     robot_size = (0.38, 0.58)
     robot_shape = (np.array(robot_size) * dpu).round().astype(int)
