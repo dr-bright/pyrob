@@ -1,6 +1,6 @@
-from misc import *
-from mapp import *
-from graph import *
+from .misc import *
+from .mapp import *
+from .graph import *
 import builtins
 
 def voronoi(map_, mass_min=50, show=None):
@@ -18,7 +18,7 @@ def voronoi(map_, mass_min=50, show=None):
     obs = np.concatenate([obs, corners], axis=0)
     v = scipy.spatial.Voronoi(obs)
     g = PathGraph()
-    g.vertices = [*map(tuple, v.vertices.tolist())]
+    g.vertices = [*map(lambda v: tuple(v[::-1]), v.vertices.tolist())]
     g.update(map(tuple, filter(lambda edge: -1 not in edge, v.ridge_vertices)))
     if show:
         show.clear()
@@ -31,11 +31,9 @@ def voronoi(map_, mass_min=50, show=None):
             plt.show()
     return g
 
-def 
-
 if __name__ == '__main__':
-    from lidar import *
-    odom, lidar = read_txt('../../data/examp5.txt')
+    from .lidar import *
+    odom, lidar = read_txt('../data/examp5.txt')
     pts = stupid_slam(odom, lidar)
     map_ = render_ptc(pts, 100)
     g = voronoi(map_, show=True)
