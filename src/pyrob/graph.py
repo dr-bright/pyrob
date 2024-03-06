@@ -39,24 +39,30 @@ class SpatialGraph(Graph):
     def add_vertex(self, label, *ids):
         if not hasattr(self, 'vertices'):
             self.vertices = []
-        id = len(self.vertices)
-        self.vertices.append(label)
-        self.add_edge(id, *ids)
-        return id
+        try:
+            id = self.vertices.index(label)
+            self.add_edge(id, *ids)
+            return id
+        except ValueError:
+            id = len(self.vertices)
+            self.vertices.append(label)
+            self.add_edge(id, *ids)
+            return id
     
     def get_index(self, label):
         return self.vertices.index(label)
     
-    def render2D(self, ax = None, show=None):
+    def render2D(self, ax=None, show=None):
         if ax is None:
             fig, ax = plt.subplots()
             if show is None:
                 show = True
-        ax.scatter(*zip(*self.vertices))
-        xs, ys = [], []
+        xs, ys = [*zip(*self.vertices)]
+        ax.scatter(ys, xs)
         for edge in self:
             pair = map(self.vertices.__getitem__, edge)
-            ax.plot(*zip(*pair))
+            ys, xs = [*zip(*pair)]
+            ax.plot(xs, ys, color='pink')
         show and plt.show()
         return ax
 
