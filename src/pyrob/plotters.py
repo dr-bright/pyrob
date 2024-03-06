@@ -1,6 +1,6 @@
-from .misc import *
-from .mapp import *
-from .graph import *
+from misc import *
+from mapp import *
+from graph import *
 import builtins
 
 def voronoi(map_, mass_min=50, show=None):
@@ -32,8 +32,8 @@ def voronoi(map_, mass_min=50, show=None):
     return g
 
 if __name__ == '__main__':
-    from .lidar import *
-    odom, lidar = read_txt('../data/examp5.txt')
+    from lidar import *
+    odom, lidar = read_txt('..\..\data\examp2.txt')
     pts = stupid_slam(odom, lidar)
     map_ = render_ptc(pts, 100)
     g = voronoi(map_, show=True)

@@ -1,5 +1,0 @@
-width: 0.38
-height: 0.58
-lidar_range: 5.5
-lidar_angle_deg: 120
-lidar_disp_xy: [0, 0.3]

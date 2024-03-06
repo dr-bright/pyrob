@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 import re  # regular expressions
-from .misc import read_file
+from misc import read_file
 
 
 # lidar data is np.array([[a, r], ...])
@@ -92,9 +92,9 @@ def stupid_slam(odom, lidar, init_angle=0, lidar_disp=0.3):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    odom, lidar = read_txt('..\data\examp2.txt')
+    odom, lidar = read_txt('..\..\data\examp2.txt')
     a0 = 0
-    ptc = stupid_slam(odom, lidar, a0, disp=(0,0.3))
+    ptc = stupid_slam(odom, lidar, a0, lidar_disp=0.3)
     mp = ptc.reshape(2, -1)
     plt.scatter(*mp, 1, 'r')
     # plt.savefig('test.png')
