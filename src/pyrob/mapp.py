@@ -1,7 +1,9 @@
-from mathops import rotate_image
+from .mathops import rotate_image
 
 import cv2 as cv
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy
 
 
 def detect_dpu(ptc):
@@ -87,9 +89,9 @@ def extend_angle(map, robot_shape, layers=8):
     return np.stack(emap, axis=0)
 
 if __name__ == '__main__':
-    from lidar import *
+    from .lidar import *
     
-    odom, lidar = read_txt('../../data/examp5.txt')
+    odom, lidar = read_txt('../data/examp5.txt')
     dpu = 100
     robot_size = (0.38, 0.58)
     robot_shape = (np.array(robot_size) * dpu).round().astype(int)
