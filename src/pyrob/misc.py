@@ -89,7 +89,3 @@ def expand_glob(*files):
         files += glob(file)
     return files
 # end
-
-
-def bounds(x, low, high):
-    return max(low, min(high, x))
