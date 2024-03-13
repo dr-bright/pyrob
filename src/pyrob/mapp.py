@@ -1,4 +1,4 @@
-from .mathops import rotate_image
+from mathops import rotate_image
 
 import pathlib
 import cv2 as cv
@@ -91,7 +91,7 @@ def extend_angle(map, robot_shape, layers=8):
     return np.stack(emap, axis=0)
 
 if __name__ == '__main__':
-    from .lidar import *
+    from lidar import *
     
     path = pathlib.Path('..','..','data', 'examp2.txt')
 
