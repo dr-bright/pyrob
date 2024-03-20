@@ -1,12 +1,12 @@
-from .misc import *
-from .mapp import *
-from .graph import *
-from .lidar import *
-from .plotters import *
+from misc import *
+from mapp import *
+from graph import *
+from lidar import *
+from plotters import *
 
-import pathlib
 import cv2
 import numpy as np
+import pathlib
 
 import matplotlib.pyplot as plt
 
@@ -33,13 +33,13 @@ def line_intersection(line1, line2):
     else:
         return True  # Отрезки не пересекаются
 
-# Функция для построения графа видимости
-def visibility_graph(obstacle, start):
+# Функция для поиска ребер в графе видимости
+def visibility_edges(obstacle, start):
     obstacles = []
     obstacles.append(start)
     for i in range(len(obstacle)):
         obstacles.append(obstacle[i])
-    # Проверяем видимость между всеми парами вершин
+ 
     edges_vids = []
     visible = False
     for i in range(len(obstacles)):
@@ -48,41 +48,31 @@ def visibility_graph(obstacle, start):
                 if i != l or i == l == 0:
                     for s in range(len(obstacles[l])):
                         if i != l or j != s:          
-                            for k in range(len(edges)):
+                            for k in range(len(edges_obst)):
                                 line = obstacles[i][j],obstacles[l][s]
-                                if line_intersection(line, edges[k]):
+                                if line_intersection(line, edges_obst[k]):
                                     visible = True
-                                    #print("True")
-                                    #print(line, edges[k])
                                 else:
-                                    #print("False")
-                                    #print(line, edges[k])
                                     visible = False
                                     break
                             if visible == True:
-                                #print('a')
                                 edges_vids.append((obstacles[i][j],obstacles[l][s]))
 
     return edges_vids
 
-edges = [] 
 
-def graph_visib(map_, show=False):
+
+def search_obstacle(map_, show=False):
     obstacles_vertices = []  # Список для хранения вершин каждого контура
 
     if show:
         _, show = plt.subplots()
 
-    _, threshold = cv2.threshold(map_, 110, 255, cv2.THRESH_BINARY) 
-
-    # Detecting contours in image. 
-    contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
-
-    # Going through every contours found in the image. 
+    contours, _ = cv2.findContours(map_, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
     for cnt in contours: 
         approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True) 
 
-        if len(approx) > 5:
+        if len(approx) > 3:
         # Добавляем координаты вершин текущего контура в список
             vertices = [tuple(vertex[0]) for vertex in approx]
             obstacles_vertices.append(vertices)
@@ -93,13 +83,13 @@ def graph_visib(map_, show=False):
                 
             for i in range(len(vertices) - 1):
                 edge = (vertices[i], vertices[i+1])
-                edges.append(edge)
+                edges_obst.append(edge)
             # Добавляем ребро между последней и первой вершинами
             edge = (vertices[-1], vertices[0])
-            edges.append(edge)
+            edges_obst.append(edge)
 
 
-    # Отображаем изображение, если необходимо
+   
     if show:
         cv2.imshow('image2', map_)  
         if cv2.waitKey(0) & 0xFF == ord('q'):  
@@ -107,35 +97,43 @@ def graph_visib(map_, show=False):
 
     return obstacles_vertices
 
-def visualize(obstacles, visib, map_, start):
-    # Создаем копию карты для визуализации
-    map_vis = map_.copy()
 
-    # Рисуем препятствия
-    #for obstacle in obstacles:
-     #   cv2.polylines(map_vis, [np.array(obstacle)], True, (0, 0, 255), 2)
 
-    # Рисуем стартовую точку
-    cv2.circle(map_vis, start[0], 10, (0, 255, 0), -1)
+def plot_obstacles_and_visibility(obstacles, map_image, visibility_edges):
+    height, width = map_image.shape[:2]  # Получаем размеры изображения map_image
+    map_vis = np.zeros((height, width, 3), dtype=np.uint8)
+    
+    # Рисуем препятствия и их ребра (синим цветом)
+    for obstacle in obstacles:
+        cv2.polylines(map_vis, [np.array(obstacle)], True, (255, 0, 0), 2)
+        
 
-    # Рисуем ребра видимости
-    for edge in visib:
-        cv2.line(map_vis, edge[0], edge[1], (255, 0, 0), 2)
+    # Рисуем ребра видимости (красным цветом)
+    for edge in visibility_edges:
+        cv2.line(map_vis, edge[0], edge[1], (0, 0, 255), 2)
 
-    # Отображаем изображение
+    
+    
+    for point in start:
+        cv2.circle(map_vis,point,5,(0,255,0),-1)
+
+    # Отображаем изображение с препятствиями, их ребрами и ребрами видимости
     cv2.imshow('Visibility Graph', map_vis)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-path = pathlib.Path('..','..','data', 'examp2.txt')
+if __name__ == '__main__':
+    start = [(470,450), (730,600)]
+    edges_obst = [] 
+    data_path = pathlib.Path('..','..','data', 'examp2.txt')
+    odom, lidar = read_txt(str(data_path))
+    pts = stupid_slam(odom, lidar)
+    map_ = render_ptc(pts, 100, ksize= 9, msize = 9)
 
-start = [(470,450), (730,600)]
-odom, lidar = read_txt(str(path))
-pts = stupid_slam(odom, lidar)
-map_ = render_ptc(pts, 100, ksize= 9, msize = 9)
-obstacless = graph_visib(map_, show=True)
-visib = visibility_graph(obstacless,start)
+    obstacless = search_obstacle(map_, show=True)
+    visib_edges = visibility_edges(obstacless,start)
 
-visualize(obstacless, visib, map_, start)
-print(obstacless)  # Печать списка с координатами вершин каждого контура
-print(edges)
+    plot_obstacles_and_visibility(obstacless, map_, visib_edges)
+
+    print(obstacless)  # Печать списка с координатами вершин каждого контура
+    print(edges_obst)

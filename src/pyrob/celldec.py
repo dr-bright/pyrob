@@ -138,7 +138,8 @@ def cell_decomp2(r_map, d_level = 1):
     for d in range(depth):
         for y in range(rows):
             for x in range(cols):
-                if 1 in r_map[d: (1 + d), y * d_level: (1 + y) * d_level, x * d_level: (1 + x) * d_level]:
+                #r_map[d, y * d_level: (1 + y) * d_level, x * d_level: (1 + x) * d_level]:
+                if r_map[d, (1 + y) * d_level, (1 + x) * d_level] == 1:
                     matrix[d, y, x] = 1                
                         
 

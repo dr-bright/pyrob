@@ -1,7 +1,8 @@
-from .misc import *
-from .mapp import *
-from .graph import *
+from misc import *
+from mapp import *
+from graph import *
 import builtins
+import pathlib
 
 def voronoi(map_, mass_min=50, show=None):
     flag = False
@@ -32,8 +33,9 @@ def voronoi(map_, mass_min=50, show=None):
     return g
 
 if __name__ == '__main__':
-    from .lidar import *
-    odom, lidar = read_txt('..\..\data\examp2.txt')
+    from lidar import *
+    data_path = pathlib.Path('..','..','data', 'examp2.txt')
+    odom, lidar = read_txt(str(data_path))
     pts = stupid_slam(odom, lidar)
     map_ = render_ptc(pts, 100)
     g = voronoi(map_, mass_min=40, show=True)
